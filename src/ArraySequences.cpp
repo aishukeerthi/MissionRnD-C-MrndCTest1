@@ -30,8 +30,97 @@ Difficulty : Medium
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+int findap(int *Arr, int len, int index, int *end_ap)
+{
+	int i, count = 0;
+	for (i = index; i < len - 2; i++)
+	{
+		if (Arr[i + 1] - Arr[i] == Arr[i + 2] - Arr[i + 1])
+		{
+			count = 1;
+			*end_ap = i + 2;
+		}
+		else
+			break;
+	}
+	return count;
+}
+int findgp(int *Arr, int len, int index, int *end_gp)
+{
+	int i, count = 0;
+	for (i = index; i < len - 2; i++)
+	{
+		if ((Arr[i + 1] / Arr[i]) == (Arr[i + 2] / Arr[i + 1]))
+		{
+			count = 1;
+			*end_gp = i + 2;
+		}
+		else
+			break;
+	}
+	return count;
+}
+
+
 
 int * find_sequences(int *arr, int len){
+
+	int *final_array = (int *)malloc(sizeof(int) * 6);
+
+	int start_ap = 0, end_ap, start_gp, end_gp;
+	int is_second_ap = 0;
+	int start_index = 0, end_index = 0, temp;
 	//Return final array which has 6indexes [AP1_S,AP1_E,AP2_S,AP2_E,GP1_S,GP2_E]
-	return NULL;
+
+	while (end_index != len - 1)
+	{
+		if (findap(arr, len, start_index, &end_index))
+		{
+			//printf("It's an AP from %d\n", start_index);
+			start_ap = start_index;
+			end_ap = end_index;
+			if (!is_second_ap)
+			{
+				final_array[0] = start_ap;
+				final_array[1] = end_ap;
+			}
+			else
+			{
+				final_array[2] = start_ap;
+				final_array[3] = end_ap;
+			}
+			is_second_ap = 1;
+			//printf("AP indices are %d, %d\n", start_ap, end_ap);
+			start_index = end_index;
+			if (!findap(arr, len, start_index, &temp) && !findgp(arr, len, start_index, &temp))
+				start_index++;
+		}
+		else if (findgp(arr, len, start_index, &end_index))
+		{
+			//printf("It's a GP from %d\n", start_index);
+			start_gp = start_index;
+			end_gp = end_index;
+			//printf("GP indices are %d, %d\n", start_gp, end_gp);
+			final_array[4] = start_gp;
+			final_array[5] = end_gp;
+			start_index = end_index - 1;
+			if (!findap(arr, len, start_index, &temp))
+			{
+				start_index++;
+				if (!findap(arr, len, start_index, &temp))
+				{
+					start_index++;
+				}
+			}
+
+		}
+		else
+		{
+			return NULL;
+			//printf("FUCKING ERROR, start_index is %d\n", start_index);
+		}
+
+
+	}
+	return final_array;
 }
